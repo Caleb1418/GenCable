@@ -11,7 +11,9 @@ export async function createUser(user: CreateUserParams) {
   try {
     await ConnectToDatabase();
 
+
     const newUser = await User.create(user);
+    console.log('newUser', newUser);
 
     return JSON.parse(JSON.stringify(newUser));
   } catch (error) {
@@ -43,7 +45,7 @@ export async function updateUser(clerkId: string, user: UpdateUserParams) {
       new: true,
     });
 
-    if (!updatedUser) throw new Error("User update failed");
+    if (!updatedUser) throw  console.log("User update failed");
     
     return JSON.parse(JSON.stringify(updatedUser));
   } catch (error) {
