@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { z } from "zod";
@@ -92,7 +93,7 @@ const TransformationForm = ({
         {type === "fill" && (
           <CustomField
             control={form.control}
-            name="aspectRatio"
+            name="aspectRation"
             formLabel="Aspect Ratio"
             className="w-full"
             render={({ field }) => (
