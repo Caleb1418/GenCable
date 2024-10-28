@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -14,12 +15,13 @@ import {
 
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { aspectRatioOptions, defaultValues } from "@/constants";
+import { aspectRatioOptions, creditFee, defaultValues } from "@/constants";
 import { CustomField } from "./CustomField";
 import { transformationTypes } from "@/constants";
-import { useState } from "react";
-import { AspectRatioKey } from "@/lib/utils";
+import { useState, useTransition } from "react";
+import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils";
 import { Button } from "../ui/button";
+import { updateCredits } from "@/lib/actions/user.actions";
 
 export const formSchema = z.object({
   title: z.string(),
@@ -44,6 +46,7 @@ const TransformationForm = ({
   const [isSubmitting, setisSubmitting] = useState(false);
   const [isTransforming, setisTransforming] = useState(false);
   const [transformationConfig, settransformationConfig] = useState(config);
+  const [isPending, startTransition] = useTransition();
   const initialValues =
     data && action === "Update"
       ? {
@@ -71,14 +74,45 @@ const TransformationForm = ({
     value: string,
     type: string,
     onChangeField: (value: string) => void
-  ) => {};
+  ) => {
+    debounce(() => {
+      setnewTransformation((prevState: any) => ({
+        ...prevState,
+        [type]: {
+          ...prevState[type],
+          [fieldName === "prompt" ? "prompt" : "to"]: value,
+        },
+      }));
+      return onChangeField(value);
+    }, 1000);
+  };
 
   const onSelectFieldHandler = (
     value: string,
     onChangeField: (value: string) => void
-  ) => {};
+  ) => {
+    const imageSize = aspectRatioOptions[value as AspectRatioKey];
+    setImage((prevState: any) => ({
+      ...prevState,
+      aspectRation: imageSize.aspectRatio,
+      width: imageSize.width,
+      height: imageSize.height,
+    }));
+    setnewTransformation(transformationType.config);
+    return onChangeField(value);
+  };
 
-  const onTransformHandler = () => {};
+  const onTransformHandler = async () => {
+    setisTransforming(true);
+    settransformationConfig(
+      deepMergeObjects(newTransformation, transformationConfig)
+    );
+    setnewTransformation(null);
+    startTransition(async () => {
+      // await updateCredits(userId, creditFee);
+    });
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
