@@ -8,7 +8,6 @@ import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
 
 const TransformedImage = ({
   image,
-  title,
   transformationConfig,
   isTransforming,
   setIsTransforming,
